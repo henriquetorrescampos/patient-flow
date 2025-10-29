@@ -1,0 +1,26 @@
+# --- Fase de Build ---
+FROM node:20 as builder
+# Definimos o diretório de trabalho DENTRO da pasta frontend
+WORKDIR /app
+
+# 1. Instala dependências (do package.json da pasta frontend)
+COPY ./frontend/package*.json ./frontend/
+RUN npm install --prefix ./frontend
+
+# 2. Copia o código fonte (da pasta frontend)
+COPY ./frontend ./frontend
+
+# 3. Roda o build (cria a pasta 'dist' dentro de /app/frontend)
+RUN npm run build --prefix ./frontend
+
+# --- Fase de Serviço (NGINX) ---
+FROM nginx:alpine
+
+EXPOSE 80 
+
+# 4. CRÍTICO: Copia o conteúdo da pasta 'dist' do BUILDER 
+# O caminho de origem é: /app/frontend/dist
+COPY --from=builder /app/frontend/dist /usr/share/nginx/html
+
+# 5. Comando para manter o NGINX rodando em foreground
+CMD ["nginx", "-g", "daemon off;"]

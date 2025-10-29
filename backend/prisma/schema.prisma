@@ -1,0 +1,40 @@
+generator client {
+  provider = "prisma-client-js"
+    binaryTargets = ["native", "linux-arm64-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum AreaType {
+  FONO
+  TO
+  PSICO
+  PSICOPEDAGOGIA
+}
+
+model Patient {
+  id         Int        @id @default(autoincrement())
+  name       String
+  phone      String?
+  planoSaude String
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+  checkboxes Checkbox[]
+}
+
+model Checkbox {
+  id             Int       @id @default(autoincrement())
+  patientId      Int
+  area           AreaType
+  checkboxNumber Int       // 1-8
+  isChecked      Boolean   @default(false)
+  checkedDate    DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  patient        Patient   @relation(fields: [patientId], references: [id], onDelete: Cascade)
+
+  @@unique([patientId, area, checkboxNumber])
+}

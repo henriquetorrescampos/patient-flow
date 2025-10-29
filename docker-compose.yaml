@@ -1,0 +1,58 @@
+services:
+  # This is the service for your PostgreSQL database
+  db:
+    image: postgres:16 # You can use a specific version like postgres:15 or just postgres:latest
+    container_name: patient-check-db
+    restart: always
+    ports:    
+      # It maps your Mac's port 5432 (left) to the container's port 5432 (right)
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}       
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}   
+    volumes:
+     # persistent data
+      - postgres-data:/var/lib/postgresql/data
+  
+  app:
+    build: .
+    container_name: node_backend
+    restart: always
+    ports:
+      - "8080:8080"
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
+    # --- Seção Corrigida ---
+    environment:
+      # O Docker Compose vai carregar DATABASE_URL, PORT, etc. do seu .env
+      # Você só precisa listar as variáveis que o container Node precisa acessar
+      DATABASE_URL: "postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}?schema=public"
+      PORT: 8080
+    # --- Fim da Seção Corrigida ---
+    depends_on:
+      - db
+    # Adicione este comando para desenvolvimento (Nodemon)
+    command: npm run dev
+
+  client:
+    # Usa o Dockerfile.client que acabamos de simplificar
+    build: 
+      context: . 
+      dockerfile: Dockerfile.client
+    container_name: react_client
+    restart: always
+    ports:
+      # A porta 3000 do host mapeia para a porta 80 do NGINX
+      - "3000:80" 
+    depends_on:
+      - app 
+    environment:
+      # Variável que seu código no frontend deve usar para falar com o backend
+      VITE_API_URL: http://app:${NODE_PORT} # hostname 'app' é crucial
+
+
+volumes:
+  # This defines the "postgres-data" volume used above
+  postgres-data:
