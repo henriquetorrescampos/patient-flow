@@ -12,7 +12,7 @@ const app = express();
 const allowedOrigins = [
   "http://localhost:3000", // Para desenvolvimento local
   "https://patient-flow.vercel.app", // Domínio principal
-  "https://www.controlesessoes.com.br/",
+  "https://www.controlesessoes.com.br",
   "https://controlesessoes.com.br",
 ];
 
