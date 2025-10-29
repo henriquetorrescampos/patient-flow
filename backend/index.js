@@ -8,37 +8,31 @@ const app = express();
 
 // --- Configuração de CORS para Produção (Vercel e Render) ---
 
-// 1. Defina o(s) domínio(s) permitido(s)
-// Use o domínio principal do seu projeto no Vercel.
-// O domínio foi inferido da sua imagem: patient-flow-git-main-henriquetcampos-projects.vercel.app
-// É recomendável usar uma variável de ambiente, mas para o deploy inicial, podemos fixar.
-
+// NOVO: Adicione o localhost para desenvolvimento e simplifique o Vercel.
 const allowedOrigins = [
-  "https://patient-flow.vercel.app", // NOVO DOMÍNIO PRINCIPAL
-  "https://patient-flow-loepldp72-henriquetcampos-projects.vercel.app",
-  // Domínio de Produção do Vercel
-  "https://patient-flow-git-main-henriquetcampos-projects.vercel.app",
-  // Domínio de PR/Preview do Vercel (opcional, mas recomendado)
-  "https://patient-flow-qvezbxcikm-henriquetcampos-projects.vercel.app",
-  // Se o Vercel tiver um domínio principal sem sufixo, adicione aqui (ex: patient-flow.vercel.app)
+  "http://localhost:3000", // Para desenvolvimento local
+  "https://patient-flow.vercel.app", // Domínio principal
 ];
 
 const corsOptions = {
-  // A função de origem verifica se a requisição é permitida
   origin: (origin, callback) => {
-    // Permite se não houver 'origin' (ex: requisições feitas pelo Backend para o próprio Backend, ou ferramentas como Postman)
     if (!origin) return callback(null, true);
 
-    // Permite se o domínio estiver na lista de permitidos
+    // 1. Verifica se a URL é exatamente um dos domínios principais na lista
     if (allowedOrigins.indexOf(origin) !== -1) {
-      callback(null, true);
-    } else {
-      // Rejeita requisições de outros domínios
-      callback(new Error("Not allowed by CORS"));
+      return callback(null, true);
     }
+
+    // 2. ADICIONE ESSA VERIFICAÇÃO: Permite qualquer subdomínio de patient-flow...vercel.app
+    // Isso cobre todos os seus domínios de PR e preview que mudam (como *-loepldp72-*)
+    if (origin.endsWith(".vercel.app") && origin.includes("patient-flow")) {
+      return callback(null, true);
+    }
+
+    // Se a origem não for permitida, rejeita
+    callback(new Error("Not allowed by CORS"));
   },
 };
-
 // --- Middleware ---
 // Aplica a nova configuração de CORS
 app.use(cors(corsOptions));
