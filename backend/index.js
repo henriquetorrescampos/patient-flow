@@ -14,6 +14,8 @@ const app = express();
 // É recomendável usar uma variável de ambiente, mas para o deploy inicial, podemos fixar.
 
 const allowedOrigins = [
+  "https://patient-flow.vercel.app", // NOVO DOMÍNIO PRINCIPAL
+  "https://patient-flow-loepldp72-henriquetcampos-projects.vercel.app",
   // Domínio de Produção do Vercel
   "https://patient-flow-git-main-henriquetcampos-projects.vercel.app",
   // Domínio de PR/Preview do Vercel (opcional, mas recomendado)
