@@ -84,7 +84,7 @@ export const addAreaToPatient = async (patientId, area) => {
   // 3. Create the 8 new checkboxes in memory
   const checkboxesToCreate = [];
   for (let i = 1; i <= CHECKBOX_COUNT; i++) {
-    checkboxToCreate.push({
+    checkboxesToCreate.push({
       patientId: parseInt(patientId),
       area: area,
       checkboxNumber: i,
@@ -101,6 +101,46 @@ export const addAreaToPatient = async (patientId, area) => {
     where: {
       patientId: parseInt(patientId),
       area: area,
+    },
+  });
+};
+
+/**
+ * Updates the checked date of a checkbox.
+ */
+export const updateCheckboxDate = async (
+  patientId,
+  area,
+  checkboxNumber,
+  newDate
+) => {
+  const checkbox = await prisma.checkbox.findUnique({
+    where: {
+      patientId_area_checkboxNumber: {
+        patientId: parseInt(patientId),
+        area: area,
+        checkboxNumber: parseInt(checkboxNumber),
+      },
+    },
+  });
+
+  if (!checkbox) {
+    throw new Error(
+      `Checkbox not found for patient ${patientId}, area ${area}, number ${checkboxNumber}`
+    );
+  }
+
+  // Só permite alterar a data se o checkbox estiver marcado
+  if (!checkbox.isChecked) {
+    throw new Error("Cannot update date of an unchecked checkbox");
+  }
+
+  return prisma.checkbox.update({
+    where: {
+      id: checkbox.id,
+    },
+    data: {
+      checkedDate: new Date(newDate),
     },
   });
 };

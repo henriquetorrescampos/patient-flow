@@ -33,7 +33,7 @@ function PatientSelector({
   }
 
   return (
-    <FormControl fullWidth sx={{ mb: 4 }}>
+    <FormControl fullWidth sx={{ my: 2 }}>
       <InputLabel id="patient-select-label">Selecione o Paciente</InputLabel>
       <Select
         labelId="patient-select-label"

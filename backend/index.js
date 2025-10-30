@@ -11,6 +11,7 @@ const app = express();
 // NOVO: Adicione o localhost para desenvolvimento e simplifique o Vercel.
 const allowedOrigins = [
   "http://localhost:3000", // Para desenvolvimento local
+  "http://localhost:5173", // Para desenvolvimento local
   "https://patient-flow.vercel.app", // Domínio principal
   "https://www.controlesessoes.com.br",
   "https://controlesessoes.com.br",

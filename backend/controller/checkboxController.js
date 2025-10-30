@@ -28,11 +28,9 @@ export const httpUpdatePatientCheckbox = async (req, res) => {
       checkboxNumber === undefined ||
       isChecked === undefined
     ) {
-      return res
-        .status(400)
-        .json({
-          error: "Missing required fields: area, checkboxNumber, isChecked",
-        });
+      return res.status(400).json({
+        error: "Missing required fields: area, checkboxNumber, isChecked",
+      });
     }
 
     const updatedCheckbox = await checkboxService.updateCheckbox(
@@ -78,5 +76,39 @@ export const httpAddAreaToPatient = async (req, res) => {
       return res.status(400).json({ error: error.message });
     }
     res.status(500).json({ error: "Failed to add area to patient" });
+  }
+};
+
+/**
+ * Updates the date of a checked checkbox.
+ */
+export const httpUpdateCheckboxDate = async (req, res) => {
+  try {
+    const { patientId } = req.params;
+    const { area, checkboxNumber, newDate } = req.body;
+
+    if (!area || !checkboxNumber || !newDate) {
+      return res.status(400).json({
+        error: "Missing required fields: area, checkboxNumber, newDate",
+      });
+    }
+
+    const updatedCheckbox = await checkboxService.updateCheckboxDate(
+      patientId,
+      area,
+      checkboxNumber,
+      newDate
+    );
+
+    res.status(200).json(updatedCheckbox);
+  } catch (error) {
+    console.error(error);
+    if (
+      error.message.includes("not found") ||
+      error.message.includes("unchecked")
+    ) {
+      return res.status(400).json({ error: error.message });
+    }
+    res.status(500).json({ error: "Failed to update checkbox date" });
   }
 };
