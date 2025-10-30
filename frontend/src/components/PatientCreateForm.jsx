@@ -63,8 +63,8 @@ const PatientCreateForm = ({ onClose, onSaveSuccess }) => {
 
     try {
       // Chamada de API para o seu backend Node.js (POST /api/patients)
-      // const response = await fetch(`${BASE_API_URL}/api/patients`, {
-      const response = await fetch(`/api/patients`, {
+      const response = await fetch(`${BASE_API_URL}/api/patients`, {
+        // const response = await fetch(`/api/patients`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(dataToSend),

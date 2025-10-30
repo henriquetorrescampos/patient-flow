@@ -14,6 +14,7 @@ import AreaChecklist from "./AreaChecklist";
 import PatientCreateForm from "./PatientCreateForm";
 
 const AREA_TYPES = ["PSICOPEDAGOGIA", "FONO", "PSICO", "TO"];
+const BASE_API_URL = import.meta.env.VITE_API_URL;
 
 function PatientCard() {
   const [selectedPatientId, setSelectedPatientId] = useState(null);
@@ -41,7 +42,8 @@ function PatientCard() {
 
     try {
       const response = await fetch(
-        `/api/patients/${patientData.id}/checkboxes/date`,
+        // `/api/patients/${patientData.id}/checkboxes/date`,
+        `${BASE_API_URL}/api/patients/${patientData.id}/checkboxes/date`,
         {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
@@ -68,7 +70,8 @@ function PatientCard() {
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch(`/api/patients/${patientId}`);
+      // const response = await fetch(`/api/patients/${patientId}`);
+      const response = await fetch(`${BASE_API_URL}/api/patients/${patientId}`);
 
       if (!response.ok) {
         throw new Error("Falha ao carregar dados do paciente.");
@@ -89,8 +92,11 @@ function PatientCard() {
     setLoadingPatients(true);
     setErrorPatients(null);
     try {
-      const response = await fetch(`/api/patients`);
+      // const response = await fetch(`/api/patients`);
+      const response = await fetch(`${BASE_API_URL}/api/patients`);
+
       if (!response.ok) throw new Error("Erro ao carregar pacientes");
+
       const data = await response.json();
       setPatients(data);
     } catch (err) {
@@ -139,7 +145,8 @@ function PatientCard() {
 
     try {
       const response = await fetch(
-        `/api/patients/${patientData.id}/checkboxes`,
+        // `/api/patients/${patientData.id}/checkboxes`,
+        `${BASE_API_URL}/api/patients/${patientData.id}/checkboxes`,
         {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
@@ -156,7 +163,9 @@ function PatientCard() {
       }
     } catch (apiError) {
       console.error("Falha ao persistir o checkbox:", apiError);
+
       setError("Erro ao salvar a alteração. Revertendo...");
+
       await fetchPatientData(patientData.id);
     }
   };
