@@ -28,7 +28,6 @@ const modalStyle = {
 const healthPlans = ["HAPVIDA", "IPASGO", "Particular", "Outro"];
 const BASE_API_URL = import.meta.env.VITE_API_URL;
 
-// O formulário de criação de paciente (Componente Integrado)
 const PatientCreateForm = ({ onClose, onSaveSuccess }) => {
   const [formData, setFormData] = useState({
     name: "",
@@ -51,20 +50,24 @@ const PatientCreateForm = ({ onClose, onSaveSuccess }) => {
     setLoading(true);
     setError(null);
 
-    // Validação simples
     if (!formData.name || !formData.planoSaude) {
       setError("O nome e o plano de saúde são obrigatórios.");
       setLoading(false);
       return;
     }
 
+    const dataToSend = {
+      ...formData,
+      name: formData.name.toUpperCase(),
+    };
+
     try {
       // Chamada de API para o seu backend Node.js (POST /api/patients)
-      // Usamos o caminho absoluto temporariamente para garantir que o fetch funcione
-      const response = await fetch(`${BASE_API_URL}/api/patients`, {
+      // const response = await fetch(`${BASE_API_URL}/api/patients`, {
+      const response = await fetch(`/api/patients`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(dataToSend),
       });
 
       if (!response.ok) {
@@ -98,8 +101,7 @@ const PatientCreateForm = ({ onClose, onSaveSuccess }) => {
       )}
 
       <Grid container spacing={2}>
-        {/* Campo Nome */}
-        <Grid item xs={12}>
+        <Grid size={{ xs: 12 }}>
           <TextField
             fullWidth
             required
@@ -110,10 +112,15 @@ const PatientCreateForm = ({ onClose, onSaveSuccess }) => {
             margin="normal"
             size="small"
             autoFocus
+            slotProps={{
+              input: {
+                style: { textTransform: "uppercase" },
+              },
+            }}
           />
         </Grid>
 
-        <Grid item xs={12}>
+        <Grid size={{ xs: 12 }}>
           <TextField
             fullWidth
             label="Telefone (Opcional)"
@@ -126,8 +133,7 @@ const PatientCreateForm = ({ onClose, onSaveSuccess }) => {
           />
         </Grid>
 
-        {/* Campo Plano de Saúde (Dropdown) */}
-        <Grid item xs={12}>
+        <Grid size={{ xs: 12 }}>
           <TextField
             select
             fullWidth
@@ -148,7 +154,6 @@ const PatientCreateForm = ({ onClose, onSaveSuccess }) => {
         </Grid>
       </Grid>
 
-      {/* Botões de Ação */}
       <Box sx={{ display: "flex", justifyContent: "flex-end", gap: 2, mt: 3 }}>
         <Button onClick={onClose} color="inherit" disabled={loading}>
           Cancelar

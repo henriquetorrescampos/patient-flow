@@ -11,7 +11,6 @@ router.get("/:id", patientController.httpGetPatientById);
 // GET all patients
 router.get("/", patientController.httpGetAllPatients);
 
-
 // Create a new patient (and optionally, their initial areas)
 // POST /api/patients
 // Body: { "name": "...", "areas": ["FONO", "TO"] }
@@ -32,6 +31,14 @@ router.get(
 router.post(
   "/:patientId/checkboxes/area",
   checkboxController.httpAddAreaToPatient
+);
+
+// Update the date of a checked checkbox
+// PATCH /api/patients/123/checkboxes/date
+// Body: { "area": "FONO", "checkboxNumber": 3, "newDate": "2025-10-29T00:00:00.000Z" }
+router.patch(
+  "/:patientId/checkboxes/date",
+  checkboxController.httpUpdateCheckboxDate
 );
 
 // Update a single checkbox for a specific patient

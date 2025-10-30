@@ -14,7 +14,6 @@ import AreaChecklist from "./AreaChecklist";
 import PatientCreateForm from "./PatientCreateForm";
 
 const AREA_TYPES = ["PSICOPEDAGOGIA", "FONO", "PSICO", "TO"];
-const BASE_API_URL = import.meta.env.VITE_API_URL;
 
 function PatientCard() {
   const [selectedPatientId, setSelectedPatientId] = useState(null);
@@ -26,14 +25,50 @@ function PatientCard() {
   const [loadingPatients, setLoadingPatients] = useState(true);
   const [errorPatients, setErrorPatients] = useState(null);
 
-  // --- 1. FUNÇÃO DE BUSCA DE DADOS (GET) ---
+  // --- FUNÇÃO PARA ALTERAR A DATA DO CHECKBOX ---
+  const handleDateChange = async (area, checkboxNumber, newDate) => {
+    if (!patientData) return;
 
+    // Atualização otimista do estado local
+    setPatientData((prevData) => ({
+      ...prevData,
+      checkboxes: prevData.checkboxes.map((c) =>
+        c.area === area && c.checkboxNumber === checkboxNumber
+          ? { ...c, checkedDate: newDate }
+          : c
+      ),
+    }));
+
+    try {
+      const response = await fetch(
+        `/api/patients/${patientData.id}/checkboxes/date`,
+        {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ area, checkboxNumber, newDate }),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Falha ao atualizar a data no servidor.");
+      }
+
+      // Sucesso - a atualização otimista já foi aplicada
+    } catch (err) {
+      console.error("Erro ao atualizar data:", err);
+      setError("Erro ao salvar a alteração da data. Revertendo...");
+      // Reverte carregando os dados do servidor
+      await fetchPatientData(patientData.id);
+    }
+  };
+
+  // --- FUNÇÃO DE BUSCA DE DADOS (GET) ---
   const fetchPatientData = async (patientId) => {
     if (!patientId) return;
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch(`${BASE_API_URL}/api/patients/${patientId}`);
+      const response = await fetch(`/api/patients/${patientId}`);
 
       if (!response.ok) {
         throw new Error("Falha ao carregar dados do paciente.");
@@ -44,7 +79,7 @@ function PatientCard() {
     } catch (err) {
       console.error("Erro ao carregar dados:", err);
       setError("Não foi possível carregar os dados do paciente.");
-      setPatientData(null); // Limpa dados em caso de erro
+      setPatientData(null);
     } finally {
       setLoading(false);
     }
@@ -54,7 +89,7 @@ function PatientCard() {
     setLoadingPatients(true);
     setErrorPatients(null);
     try {
-      const response = await fetch(`${BASE_API_URL}/api/patients`);
+      const response = await fetch(`/api/patients`);
       if (!response.ok) throw new Error("Erro ao carregar pacientes");
       const data = await response.json();
       setPatients(data);
@@ -70,7 +105,6 @@ function PatientCard() {
     fetchPatients();
   }, []);
 
-  // Efeito para carregar dados quando o paciente muda
   useEffect(() => {
     if (selectedPatientId) {
       fetchPatientData(selectedPatientId);
@@ -79,17 +113,15 @@ function PatientCard() {
     }
   }, [selectedPatientId]);
 
-  // --- 2. FUNÇÃO DE ATUALIZAÇÃO DO CHECKBOX (PATCH) ---
+  // --- FUNÇÃO DE ATUALIZAÇÃO DO CHECKBOX (PATCH) ---
   const handleCheckboxToggle = async (areaType, checkboxNumber, isChecked) => {
     if (!patientData) return;
 
-    // 1. Atualização Otimista: Atualiza o estado da UI ANTES da resposta da API
     const now = new Date();
     const tempCheckboxes = patientData.checkboxes.filter(
       (c) => !(c.area === areaType && c.checkboxNumber === checkboxNumber)
     );
 
-    // Novo checkbox que será enviado e usado para atualizar o estado local
     const newCheckboxState = {
       patientId: patientData.id,
       area: areaType,
@@ -98,18 +130,16 @@ function PatientCard() {
       checkedDate: isChecked ? now.toISOString() : null,
     };
 
-    // Atualiza o estado local (UI)
     setPatientData((prevData) => ({
       ...prevData,
       checkboxes: isChecked
-        ? [...tempCheckboxes, newCheckboxState] // Adiciona o novo se marcado
-        : tempCheckboxes, // Remove o anterior se desmarcado
+        ? [...tempCheckboxes, newCheckboxState]
+        : tempCheckboxes,
     }));
 
-    // 2. Chamada à API (PATCH)
     try {
       const response = await fetch(
-        `${BASE_API_URL}/api/patients/${patientData.id}/checkboxes`,
+        `/api/patients/${patientData.id}/checkboxes`,
         {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
@@ -122,24 +152,18 @@ function PatientCard() {
       );
 
       if (!response.ok) {
-        // Se a API falhar, revertemos o estado local
         throw new Error("Falha ao salvar a alteração no servidor.");
       }
-
-      // Se a resposta for bem-sucedida, não fazemos nada, pois a atualização otimista já foi feita.
     } catch (apiError) {
       console.error("Falha ao persistir o checkbox:", apiError);
       setError("Erro ao salvar a alteração. Revertendo...");
-
-      // REVERTER O ESTADO: Recarrega os dados do servidor para obter a fonte da verdade
-      // (Isso é uma forma segura de lidar com falhas de atualização otimista)
       await fetchPatientData(patientData.id);
     }
   };
 
   const handleSaveSuccess = (newPatient) => {
-    setPatients((prev) => [...prev, newPatient]); // adiciona à lista
-    setSelectedPatientId(newPatient.id); // seleciona o paciente
+    setPatients((prev) => [...prev, newPatient]);
+    setSelectedPatientId(newPatient.id);
     setOpenModal(false);
   };
 
@@ -151,7 +175,7 @@ function PatientCard() {
       <Button
         variant="contained"
         color="primary"
-        startIcon={<AddIcon></AddIcon>}
+        startIcon={<AddIcon />}
         sx={{
           my: 2,
           borderRadius: 8,
@@ -168,8 +192,6 @@ function PatientCard() {
         />
       </Modal>
 
-      {/* O PatientSelector deve receber a lista de pacientes. 
-          Você precisará de uma função GET /api/patients para carregar a lista de pacientes disponíveis. */}
       <PatientSelector
         selectedPatientId={selectedPatientId}
         onPatientChange={setSelectedPatientId}
@@ -194,14 +216,14 @@ function PatientCard() {
       {patientData && !loading && (
         <Grid container spacing={3}>
           {AREA_TYPES.map((areaType) => (
-            <Grid item xs={12} sm={6} md={3} key={areaType}>
+            <Grid size={{ xs: 12, sm: 6, md: 3 }} key={areaType}>
               <AreaChecklist
                 areaType={areaType}
-                // Passa apenas os checkboxes pertinentes para a área
                 checkboxes={patientData.checkboxes.filter(
                   (c) => c.area === areaType
                 )}
                 onCheckboxToggle={handleCheckboxToggle}
+                onDateChange={handleDateChange}
               />
             </Grid>
           ))}

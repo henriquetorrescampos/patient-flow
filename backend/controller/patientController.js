@@ -2,7 +2,6 @@ import * as patientService from "../service/patientService.js";
 import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
-
 export const httpCreatePatient = async (req, res) => {
   try {
     const { name, phone, planoSaude } = req.body;
@@ -40,7 +39,6 @@ export const httpCreatePatient = async (req, res) => {
     return res.status(500).json({ error: "Erro ao criar paciente." });
   }
 };
-
 
 /**
  * Handles HTTP request to get a single patient by their ID.
