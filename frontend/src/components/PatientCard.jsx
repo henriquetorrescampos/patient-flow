@@ -28,9 +28,9 @@ function PatientCard() {
   const [patients, setPatients] = useState([]);
   const [loadingPatients, setLoadingPatients] = useState(true);
   const [errorPatients, setErrorPatients] = useState(null);
-  const [savingArea, setSavingArea] = useState(null); // <-- Adicionado
-  const [successMessage, setSuccessMessage] = useState(""); // <-- Adicionado
-  const [refreshHistory, setRefreshHistory] = useState(0); // <-- Adicionado
+  const [savingArea, setSavingArea] = useState(null);
+  const [successMessage, setSuccessMessage] = useState("");
+  const [refreshHistory, setRefreshHistory] = useState(0);
 
   // --- FUNÇÃO PARA ALTERAR A DATA DO CHECKBOX ---
   const handleDateChange = async (area, checkboxNumber, newDate) => {
