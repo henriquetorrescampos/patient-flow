@@ -1,7 +1,6 @@
 import { Router } from "express";
 import * as patientController from "../controller/patientController.js";
 import * as checkboxController from "../controller/checkboxController.js";
-import * as historyController from "../controller/historyController.js";
 
 const router = Router();
 

@@ -46,7 +46,7 @@ export const httpCreatePatient = async (req, res) => {
 export const httpGetPatientById = async (req, res) => {
   try {
     const { id } = req.params;
-    const patient = await patientService.getPatientById(id);
+    const patient = await patientService.getPatientById(parseInt(id));
 
     if (!patient) {
       return res.status(404).json({ error: "Patient not found" });
