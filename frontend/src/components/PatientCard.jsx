@@ -14,7 +14,6 @@ import PatientSelector from "./PatientSelector";
 import AreaChecklist from "./AreaChecklist";
 import PatientCreateForm from "./PatientCreateForm";
 import HistoryList from "./HistoryList";
-import { saveAreaHistory } from "../../../backend/service/historyService";
 
 const AREA_TYPES = ["PSICOPEDAGOGIA", "FONO", "PSICO", "TO"];
 const BASE_API_URL = import.meta.env.VITE_API_URL;
@@ -197,8 +196,15 @@ function PatientCard() {
         return;
       }
 
-      // 1. Salva o histórico
-      await saveAreaHistory(patientData.id, areaType, areaCheckboxes);
+      await fetch(`${BASE_API_URL}/api/history`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          patientId: patientData.id,
+          area: areaType,
+          checkboxes: areaCheckboxes,
+        }),
+      });
 
       // 2. Após salvar, limpa os checkboxes da área (REQUER IMPLEMENTAÇÃO NO BACKEND)
       // Por enquanto, apenas recarrega os dados para mostrar o estado atual

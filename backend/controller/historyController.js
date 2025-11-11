@@ -1,5 +1,4 @@
 import { prisma } from "../lib/prisma.js";
-import pkg from "@prisma/client";
 
 /**
  * POST /api/history
@@ -64,12 +63,10 @@ export const saveHistory = async (req, res) => {
   } catch (error) {
     console.error("Erro ao salvar histórico:", error);
     // Erro 500 para falhas internas ou de conexão com o banco
-    res
-      .status(500)
-      .json({
-        error: "Erro interno do servidor ao salvar histórico.",
-        detail: error.message,
-      });
+    res.status(500).json({
+      error: "Erro interno do servidor ao salvar histórico.",
+      detail: error.message,
+    });
   }
 };
 
