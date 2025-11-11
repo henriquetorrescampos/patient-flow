@@ -1,5 +1,6 @@
 import { Router } from "express";
 import patientRouter from "./patientRoutes.js";
+import historyRouter from "./historyRoutes.js";
 
 const api = Router();
 
