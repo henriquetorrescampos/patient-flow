@@ -26,35 +26,34 @@ export const updateCheckbox = async (
   checkboxNumber,
   isChecked
 ) => {
-  // Find the specific checkbox
-  // This relies on a @@unique([patientId, area, checkboxNumber]) constraint
-  // in your schema.prisma file.
-  const checkbox = await prisma.checkbox.findUnique({
+  const pId = parseInt(patientId);
+  const cNum = parseInt(checkboxNumber);
+
+  // 1. Define a data (se estiver marcando, usa a data atual; senão, é null)
+  const checkedDate = isChecked ? new Date() : null;
+
+  // 2. Tenta ATUALIZAR ou CRIAR (Upsert) o registro
+  return prisma.checkbox.upsert({
     where: {
+      // Chave única para localizar o registro
       patientId_area_checkboxNumber: {
-        patientId: parseInt(patientId),
+        patientId: pId,
         area: area,
-        checkboxNumber: parseInt(checkboxNumber),
+        checkboxNumber: cNum,
       },
     },
-  });
-
-  if (!checkbox) {
-    throw new Error(
-      `Checkbox not found for patient ${patientId}, area ${area}, number ${checkboxNumber}`
-    );
-  }
-
-  // Update it
-  return prisma.checkbox.update({
-    where: {
-      id: checkbox.id,
-    },
-    data: {
+    update: {
+      // Se ENCONTRAR: Apenas atualiza o estado e a data
       isChecked: isChecked,
-      // Set checkedDate only if we are checking it ON
-      // If we are un-checking it, set it to null
-      checkedDate: isChecked ? new Date() : null,
+      checkedDate: checkedDate,
+    },
+    create: {
+      // Se NÃO ENCONTRAR (após deletar o histórico): Cria o novo registro
+      patientId: pId,
+      area: area,
+      checkboxNumber: cNum,
+      isChecked: isChecked,
+      checkedDate: checkedDate,
     },
   });
 };
