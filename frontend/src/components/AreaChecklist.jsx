@@ -14,8 +14,10 @@ import {
   DialogContent,
   DialogActions,
   Button,
+  CircularProgress,
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
+import SaveIcon from "@mui/icons-material/Save";
 
 const areaLabels = {
   FONO: "Fonoaudiologia",
@@ -29,6 +31,8 @@ function AreaChecklist({
   checkboxes,
   onCheckboxToggle,
   onDateChange,
+  onSaveClick,
+  saving = false,
 }) {
   const [editingCheckbox, setEditingCheckbox] = useState(null);
   const [newDate, setNewDate] = useState("");
@@ -143,6 +147,24 @@ function AreaChecklist({
               </Box>
             ))}
           </FormGroup>
+
+          <Button
+            variant="contained"
+            color="primary"
+            fullWidth
+            onClick={() => onSaveClick(areaType)} // Chama a função de salvamento
+            disabled={saving} // Desabilita durante o salvamento
+            startIcon={
+              saving ? (
+                <CircularProgress size={20} color="inherit" />
+              ) : (
+                <SaveIcon />
+              )
+            }
+            sx={{ mt: 3 }}
+          >
+            {saving ? "Gravando..." : "Gravar Histórico"}
+          </Button>
         </CardContent>
       </Card>
 

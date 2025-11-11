@@ -1,9 +1,13 @@
 import { Router } from "express";
 import patientRouter from "./patientRoutes.js";
+import historyRoutes from "./historyRoutes.js";
 
 const api = Router();
 
+// Monta as rotas de pacientes/checkboxes em /api/patients
 api.use("/patients", patientRouter);
-// You could add other routes here later, e.g., api.use('/users', ...)
+
+// Monta as rotas de histórico em /api/history
+api.use("/history", historyRoutes);
 
 export default api;
