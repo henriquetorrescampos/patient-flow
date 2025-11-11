@@ -26,10 +26,8 @@ import {
 import DeleteIcon from "@mui/icons-material/Delete";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
-import {
-  fetchPatientHistory,
-  deleteHistory,
-} from "../../../backend/service/historyService";
+
+const BASE_API_URL = import.meta.env.VITE_API_URL;
 
 const areaLabels = {
   FONO: "Fonoaudiologia",
@@ -53,21 +51,36 @@ const HistoryList = ({ patientId }) => {
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
   const [historyIdToDelete, setHistoryIdToDelete] = useState(null);
 
+  // ✅ Substitui o antigo fetchPatientHistory (chamava Prisma diretamente)
+  const fetchHistory = async (patientId) => {
+    const res = await fetch(`${BASE_API_URL}/api/history/${patientId}`);
+    if (!res.ok) throw new Error("Erro ao buscar histórico");
+    return await res.json();
+  };
+
+  // ✅ Substitui o antigo deleteHistory (chamava Prisma diretamente)
+  const deleteHistoryRecord = async (historyId) => {
+    const res = await fetch(`${BASE_API_URL}/api/history/${historyId}`, {
+      method: "DELETE",
+    });
+    if (!res.ok) throw new Error("Erro ao deletar histórico");
+  };
+
   const loadHistory = async () => {
     if (!patientId) return;
 
     setLoading(true);
     setError(null);
     try {
-      const data = await fetchPatientHistory(patientId);
-      // Ordena por data mais recente primeiro
+      const data = await fetchHistory(patientId);
+      // Ordena por data mais recente
       const sortedData = data.sort(
         (a, b) => new Date(b.savedAt) - new Date(a.savedAt)
       );
       setHistory(sortedData);
     } catch (err) {
-      setError("Não foi possível carregar o histórico.");
       console.error(err);
+      setError("Não foi possível carregar o histórico.");
     } finally {
       setLoading(false);
     }
@@ -82,24 +95,21 @@ const HistoryList = ({ patientId }) => {
     setOpenDeleteDialog(true);
   };
 
-  // Função que executa a exclusão após a confirmação no diálogo
   const handleConfirmDelete = async () => {
     if (!historyIdToDelete) return;
 
     try {
-      await deleteHistory(historyIdToDelete);
+      await deleteHistoryRecord(historyIdToDelete);
       setHistory((prev) => prev.filter((h) => h.id !== historyIdToDelete));
     } catch (err) {
-      setError("Erro ao excluir registro. Tente novamente.");
       console.error(err);
+      setError("Erro ao excluir registro. Tente novamente.");
     } finally {
-      // Fecha o diálogo e limpa o ID, independentemente do sucesso/falha
       setOpenDeleteDialog(false);
       setHistoryIdToDelete(null);
     }
   };
 
-  // Função para fechar o diálogo sem excluir
   const handleCloseDialog = () => {
     setOpenDeleteDialog(false);
     setHistoryIdToDelete(null);
@@ -109,6 +119,7 @@ const HistoryList = ({ patientId }) => {
     setExpandedId(expandedId === id ? null : id);
   };
 
+  // 🌀 Loading
   if (loading) {
     return (
       <Box sx={{ display: "flex", justifyContent: "center", my: 4 }}>
@@ -117,6 +128,7 @@ const HistoryList = ({ patientId }) => {
     );
   }
 
+  // ⚠️ Erro
   if (error) {
     return (
       <Alert severity="error" sx={{ mb: 2 }}>
@@ -125,6 +137,7 @@ const HistoryList = ({ patientId }) => {
     );
   }
 
+  // ℹ️ Nenhum paciente selecionado
   if (!patientId) {
     return (
       <Alert severity="info" sx={{ mb: 2 }}>
@@ -133,6 +146,7 @@ const HistoryList = ({ patientId }) => {
     );
   }
 
+  // ℹ️ Nenhum histórico
   if (history.length === 0) {
     return (
       <Alert severity="info" sx={{ mb: 2 }}>
@@ -142,6 +156,7 @@ const HistoryList = ({ patientId }) => {
     );
   }
 
+  // 🧾 Render principal
   return (
     <Box sx={{ mt: 3 }}>
       <TableContainer component={Paper} elevation={2}>
@@ -149,21 +164,16 @@ const HistoryList = ({ patientId }) => {
           <TableHead>
             <TableRow sx={{ backgroundColor: "#f5f5f5" }}>
               <TableCell sx={{ fontWeight: "bold", width: "40px" }}></TableCell>
-
               <TableCell sx={{ fontWeight: "bold" }}>Especialidade</TableCell>
-
               <TableCell sx={{ fontWeight: "bold" }}>Sessões</TableCell>
-
               <TableCell sx={{ fontWeight: "bold" }}>
                 Data de Registro
               </TableCell>
-
               <TableCell sx={{ fontWeight: "bold", width: "80px" }}>
                 Ações
               </TableCell>
             </TableRow>
           </TableHead>
-
           <TableBody>
             {history.map((record) => (
               <>
@@ -233,15 +243,9 @@ const HistoryList = ({ patientId }) => {
                   </TableCell>
                 </TableRow>
 
-                {/* Linha expansível com detalhes */}
+                {/* Detalhes das sessões */}
                 <TableRow>
-                  <TableCell
-                    colSpan={5}
-                    sx={{
-                      py: 0,
-                      borderBottom: expandedId === record.id ? 1 : 0,
-                    }}
-                  >
+                  <TableCell colSpan={5} sx={{ py: 0 }}>
                     <Collapse
                       in={expandedId === record.id}
                       timeout="auto"
@@ -303,6 +307,7 @@ const HistoryList = ({ patientId }) => {
         </Table>
       </TableContainer>
 
+      {/* Diálogo de confirmação */}
       <Dialog
         open={openDeleteDialog}
         onClose={handleCloseDialog}
@@ -312,14 +317,12 @@ const HistoryList = ({ patientId }) => {
         <DialogTitle id="alert-dialog-title" variant="h5" component="h2">
           {"Confirmar Exclusão"}
         </DialogTitle>
-
         <DialogContent>
           <DialogContentText id="alert-dialog-description">
             Deseja excluir permanentemente este registro de histórico? Esta ação
             não pode ser desfeita.
           </DialogContentText>
         </DialogContent>
-
         <DialogActions>
           <Button
             onClick={handleCloseDialog}
@@ -328,7 +331,6 @@ const HistoryList = ({ patientId }) => {
           >
             Cancelar
           </Button>
-
           <Button
             onClick={handleConfirmDelete}
             color="error"
