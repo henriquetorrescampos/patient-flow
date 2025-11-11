@@ -1,77 +1,55 @@
-const BASE_API_URL = import.meta.env.VITE_API_URL;
+import { prisma } from "../lib/prisma.js";
 
 /**
- * Salva o histórico de uma área específica para um paciente
- * @param {number} patientId - ID do paciente
- * @param {string} area - Área (FONO, TO, PSICO, PSICOPEDAGOGIA)
- * @param {Array} checkboxes - Lista de checkboxes marcados dessa área
- * @returns {Promise<Object>} - Histórico salvo
+ * Salva um novo registro de histórico no banco de dados.
+ *
+ * @param {Object} data - Dados do histórico, incluindo patientId (number), area (string) e checkboxes (Array).
+ * @returns {Promise<Object>} - O registro de histórico criado.
  */
-export const saveAreaHistory = async (patientId, area, checkboxes) => {
-  try {
-    // const response = await fetch(`/api/history`, {
-    const response = await fetch(`${BASE_API_URL}/api/history`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        patientId,
-        area,
-        checkboxes,
-        savedAt: new Date().toISOString(),
-      }),
-    });
+export const saveHistory = async ({ patientId, area, checkboxes, savedAt }) => {
+  // A conversão de patientId (para garantir que é number) e a validação do paciente
+  // devem idealmente ser feitas no Controller, mas garantimos o JSON.stringify aqui.
 
-    if (!response.ok) {
-      throw new Error("Falha ao salvar histórico");
-    }
+  const sessionsCompleted = checkboxes.filter((c) => c.isChecked).length;
 
-    return await response.json();
-  } catch (error) {
-    console.error("Erro ao salvar histórico:", error);
-    throw error;
-  }
+  const history = await prisma.history.create({
+    data: {
+      patientId: patientId, // Deve ser number, garantido pelo Controller
+      area: area,
+      checkboxes: JSON.stringify(checkboxes), // Salva o array como string JSON
+      sessionsCompleted: sessionsCompleted,
+      savedAt: savedAt || new Date().toISOString(),
+    },
+  });
+
+  return history;
 };
 
 /**
- * Busca o histórico completo de um paciente
- * @param {number} patientId - ID do paciente
- * @returns {Promise<Array>} - Lista de históricos
+ * Busca todo o histórico de um paciente.
+ * @param {number} patientId - ID do paciente.
+ * @returns {Promise<Array>} - Lista de registros de histórico.
  */
 export const fetchPatientHistory = async (patientId) => {
-  try {
-    // const response = await fetch(`/api/history/${patientId}`);
-    const response = await fetch(`${BASE_API_URL}/api/history/${patientId}`);
+  const history = await prisma.history.findMany({
+    where: { patientId: patientId },
+    orderBy: { savedAt: "desc" },
+  });
 
-    if (!response.ok) {
-      throw new Error("Falha ao carregar histórico");
-    }
-
-    return await response.json();
-  } catch (error) {
-    console.error("Erro ao carregar histórico:", error);
-    throw error;
-  }
+  // Parse dos checkboxes de JSON para objeto antes de retornar
+  return history.map((record) => ({
+    ...record,
+    checkboxes: JSON.parse(record.checkboxes),
+  }));
 };
 
 /**
- * Deleta um registro específico do histórico
- * @param {number} historyId - ID do histórico
- * @returns {Promise<void>}
+ * Deleta um registro específico do histórico.
+ * @param {number} historyId - ID do registro de histórico.
+ * @returns {Promise<Object>} - O registro deletado.
  */
 export const deleteHistory = async (historyId) => {
-  try {
-    // const response = await fetch(`/api/history/${historyId}`, {
-    const response = await fetch(`${BASE_API_URL}/api/history/${historyId}`, {
-      method: "DELETE",
-    });
-
-    if (!response.ok) {
-      throw new Error("Falha ao deletar histórico");
-    }
-
-    return await response.json();
-  } catch (error) {
-    console.error("Erro ao deletar histórico:", error);
-    throw error;
-  }
+  return prisma.history.delete({
+    where: { id: historyId },
+  });
 };
