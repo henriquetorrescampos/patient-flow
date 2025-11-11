@@ -25,7 +25,6 @@ model Patient {
   checkboxes Checkbox[]
   histories History[]
 
-  @@map("patients")
 }
 
 model Checkbox {
@@ -41,7 +40,6 @@ model Checkbox {
 
   @@unique([patientId, area, checkboxNumber])
 
-  @@map("checkboxes")
 }
 
 model History {
@@ -57,5 +55,4 @@ model History {
   
   @@index([patientId])
   @@index([area])
-  @@map("histories")
 }
