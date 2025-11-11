@@ -25,7 +25,7 @@ const modalStyle = {
   overflowY: "auto",
 };
 
-const healthPlans = ["HAPVIDA", "IPASGO", "Particular", "Outro"];
+const healthPlans = ["IAMESC", "IPASGO", "Particular", "Outro"];
 const BASE_API_URL = import.meta.env.VITE_API_URL;
 
 const PatientCreateForm = ({ onClose, onSaveSuccess }) => {
