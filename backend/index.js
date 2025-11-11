@@ -15,6 +15,7 @@ const allowedOrigins = [
   "https://patient-flow.vercel.app", // Domínio principal
   "https://www.controlesessoes.com.br",
   "https://controlesessoes.com.br",
+  "https://patient-flow.onrender.com",
 ];
 
 const corsOptions = {

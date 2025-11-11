@@ -1,9 +1,12 @@
+// historyRoutes.js
 import { Router } from "express";
 import * as historyController from "../controller/historyController.js";
 
 const router = Router();
 
-// ROTA PRINCIPAL: POST /api/history
+// As rotas aqui são relativas a /api/history
+
+// POST /api/history
 router.post("/", historyController.saveHistory);
 
 // GET /api/history/:patientId
