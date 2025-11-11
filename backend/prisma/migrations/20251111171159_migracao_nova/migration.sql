@@ -1,5 +1,5 @@
 -- CreateEnum
-CREATE TYPE "AreaType" AS ENUM ('FONO', 'TO', 'PSICO', 'PSICOPEDAGOGIA');
+
 
 -- CreateTable
 CREATE TABLE "Patient" (
