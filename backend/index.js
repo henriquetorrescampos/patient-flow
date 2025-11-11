@@ -44,7 +44,6 @@ app.use(cors(corsOptions));
 app.use(express.json()); // Parse JSON request bodies
 
 // --- Routes ---
-// Connects your router file
 app.use("/api", api);
 
 // --- Server Startup ---
