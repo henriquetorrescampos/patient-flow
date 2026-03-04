@@ -75,7 +75,7 @@ const HistoryList = ({ patientId }) => {
       const data = await fetchHistory(patientId);
       // Ordena por data mais recente
       const sortedData = data.sort(
-        (a, b) => new Date(b.savedAt) - new Date(a.savedAt)
+        (a, b) => new Date(b.savedAt) - new Date(a.savedAt),
       );
       setHistory(sortedData);
     } catch (err) {
@@ -210,7 +210,7 @@ const HistoryList = ({ patientId }) => {
                   </TableCell>
                   <TableCell>
                     <Typography variant="body2">
-                      {record.sessionsCompleted} de 8 completas
+                      {record.sessionsCompleted} de 10 completas
                     </Typography>
                   </TableCell>
                   <TableCell>
@@ -291,7 +291,7 @@ const HistoryList = ({ patientId }) => {
                                   color="text.secondary"
                                 >
                                   {new Date(
-                                    checkbox.checkedDate
+                                    checkbox.checkedDate,
                                   ).toLocaleDateString("pt-BR")}
                                 </Typography>
                               </Card>

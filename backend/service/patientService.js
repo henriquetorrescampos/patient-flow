@@ -3,7 +3,7 @@ import pkg from "@prisma/client";
 
 const { AreaType } = pkg;
 
-const CHECKBOX_COUNT = 8;
+const CHECKBOX_COUNT = 10;
 
 export const createPatientWithCheckboxes = async (patientData) => {
   // Destructure 'areas' from the data. Default to an empty array.
@@ -61,8 +61,8 @@ export async function httpCreatePatient(req, res) {
 
     // 1. Validação simples dos campos obrigatórios
     if (!name || !planoSaude) {
-      return res.status(400).json({ 
-        error: "Campos 'name' e 'planoSaude' são obrigatórios." 
+      return res.status(400).json({
+        error: "Campos 'name' e 'planoSaude' são obrigatórios.",
       });
     }
 
@@ -71,19 +71,17 @@ export async function httpCreatePatient(req, res) {
     const newPatient = await prisma.patient.create({
       data: {
         name,
-        phone,       
+        phone,
         planoSaude,
       },
-      
     });
 
     // 3. Retorne o novo paciente criado com o status 201 (Created)
     return res.status(201).json(newPatient);
-
   } catch (error) {
     console.error("Erro ao criar paciente:", error);
-    return res.status(500).json({ 
-        error: "Falha interna do servidor ao criar o paciente." 
+    return res.status(500).json({
+      error: "Falha interna do servidor ao criar o paciente.",
     });
   }
 }

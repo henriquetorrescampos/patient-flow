@@ -3,7 +3,7 @@ import pkg from "@prisma/client";
 
 const { AreaType } = pkg;
 
-const CHECKBOX_COUNT = 8;
+const CHECKBOX_COUNT = 10;
 
 /**
  * Gets all checkboxes for a specific patient.
@@ -24,7 +24,7 @@ export const updateCheckbox = async (
   patientId,
   area,
   checkboxNumber,
-  isChecked
+  isChecked,
 ) => {
   const pId = parseInt(patientId);
   const cNum = parseInt(checkboxNumber);
@@ -111,7 +111,7 @@ export const updateCheckboxDate = async (
   patientId,
   area,
   checkboxNumber,
-  newDate
+  newDate,
 ) => {
   const checkbox = await prisma.checkbox.findUnique({
     where: {
@@ -125,7 +125,7 @@ export const updateCheckboxDate = async (
 
   if (!checkbox) {
     throw new Error(
-      `Checkbox not found for patient ${patientId}, area ${area}, number ${checkboxNumber}`
+      `Checkbox not found for patient ${patientId}, area ${area}, number ${checkboxNumber}`,
     );
   }
 

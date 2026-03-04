@@ -15,7 +15,7 @@ export const httpCreatePatient = async (req, res) => {
     const checkboxesToCreate = [];
 
     for (const area of areas) {
-      for (let i = 1; i <= 8; i++) {
+      for (let i = 1; i <= 10; i++) {
         checkboxesToCreate.push({
           patientId: newPatient.id,
           area,
