@@ -1,8 +1,5 @@
 import * as checkboxService from "../service/checkboxService.js";
 
-//
-// THIS FUNCTION IS MISSING
-//
 export const httpGetPatientCheckboxes = async (req, res) => {
   try {
     const { patientId } = req.params;
@@ -14,9 +11,6 @@ export const httpGetPatientCheckboxes = async (req, res) => {
   }
 };
 
-//
-// THIS FUNCTION IS ALSO MISSING (but your routes use it)
-//
 export const httpUpdatePatientCheckbox = async (req, res) => {
   try {
     const { patientId } = req.params;

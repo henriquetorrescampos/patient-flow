@@ -1,6 +1,3 @@
-// import { PrismaClient } from "@prisma/client";
-// const prisma = new PrismaClient();
-
 import { prisma } from "../lib/prisma.js";
 
 /**
@@ -46,7 +43,7 @@ export const saveHistory = async (req, res) => {
     // 5. Cria o registro de histórico
     const history = await prisma.history.create({
       data: {
-        patientId, // É um número inteiro aqui!
+        patientId,
         area,
         checkboxes: JSON.stringify(checkboxes),
         sessionsCompleted,
@@ -57,7 +54,7 @@ export const saveHistory = async (req, res) => {
     // 6. Limpa os checkboxes (resetando a área para um novo ciclo)
     await prisma.checkbox.deleteMany({
       where: {
-        patientId: patientId, // É um número inteiro aqui!
+        patientId: patientId,
         area: area,
       },
     });
